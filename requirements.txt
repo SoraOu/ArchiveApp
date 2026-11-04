@@ -1,0 +1,8 @@
+Pillow
+PyMuPDF
+openpyxl
+pyinstaller
+flask
+waitress
+pytesseract
+watchdog

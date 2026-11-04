@@ -1,0 +1,20 @@
+# Confidential data - never commit
+data/
+backups/
+samples/
+*.db
+*.sqlite
+
+# Build output
+dist/
+build/
+*.spec
+__pycache__/
+*.pyc
+.venv/
+
+# Local config and secrets
+config.ini
+*.key
+*.pem
+*.log

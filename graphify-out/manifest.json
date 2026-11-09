@@ -1,0 +1,212 @@
+{
+  "app.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023133,
+    "ast_hash": "a5ae80146541050fada1e46d79220be4",
+    "semantic_hash": ""
+  },
+  "backup.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023214,
+    "ast_hash": "9c2f0a887c50afbeeffef399e3f9d05e",
+    "semantic_hash": ""
+  },
+  "db.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.302326,
+    "ast_hash": "474c59cdcc40512245ddf2a64a7b8949",
+    "semantic_hash": ""
+  },
+  "profile.json": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023343,
+    "ast_hash": "c28f2c9d91683200a17c8c63a633b2ec",
+    "semantic_hash": ""
+  },
+  "restore.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023362,
+    "ast_hash": "46419cdc7df17b34e3d092a5acba22c2",
+    "semantic_hash": ""
+  },
+  "services.py": {
+    "mtime": 1793944712.0,
+    "seen": 1793945376.4776008,
+    "ast_hash": "886c06cefb3e16994e47eb0ade43781c",
+    "semantic_hash": ""
+  },
+  "storage.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023403,
+    "ast_hash": "6515f5ea2bca3b44663aa34471d7aa07",
+    "semantic_hash": ""
+  },
+  "test_phase1.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023422,
+    "ast_hash": "2724f99d937d1834061d492d47ef787f",
+    "semantic_hash": ""
+  },
+  "test_phase3.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023446,
+    "ast_hash": "b6b2852c83e27f92bd36f889e31874d8",
+    "semantic_hash": ""
+  },
+  "ui/__init__.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023465,
+    "ast_hash": "920e9e617cf43e26aaf57d0a82e446eb",
+    "semantic_hash": ""
+  },
+  "ui/activity_log.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023489,
+    "ast_hash": "3389c653a42ff793430fb53d89562639",
+    "semantic_hash": ""
+  },
+  "ui/add_dialog.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023505,
+    "ast_hash": "4a99bc1f90c2b961a4f08074f8173d02",
+    "semantic_hash": ""
+  },
+  "ui/common.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023524,
+    "ast_hash": "1d6063bf78ca7a0380fb32ecba08af6c",
+    "semantic_hash": ""
+  },
+  "ui/main_window.py": {
+    "mtime": 1793944742.0,
+    "seen": 1793945376.4776328,
+    "ast_hash": "2be2ac8f70c58a4c58cd41dee7d0fe3f",
+    "semantic_hash": ""
+  },
+  "ui/maintenance.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023565,
+    "ast_hash": "f549192bd9a752eff345b8427df09209",
+    "semantic_hash": ""
+  },
+  "ui/preview.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023584,
+    "ast_hash": "3287e0f4d32ca2b1dba98b5ce7c61521",
+    "semantic_hash": ""
+  },
+  "ui/recycle_bin.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.30236,
+    "ast_hash": "377d5780447d588cced7e30d26231a39",
+    "semantic_hash": ""
+  },
+  "ui/settings_window.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023622,
+    "ast_hash": "48bc2da815b6946f231c1cf495324e6b",
+    "semantic_hash": ""
+  },
+  "ui/tag_manager.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.302364,
+    "ast_hash": "d0f29ac25a8057908758ee8c49a8df06",
+    "semantic_hash": ""
+  },
+  "ui/type_dialogs.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.302366,
+    "ast_hash": "ec3f2fcd5347b9b54b3e38d0618d91ec",
+    "semantic_hash": ""
+  },
+  "ui/type_manager.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023677,
+    "ast_hash": "afe5217f7a616163dea276de272c2192",
+    "semantic_hash": ""
+  },
+  "ui/widgets.py": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023698,
+    "ast_hash": "65ff520ce98650745e97d755de604dec",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1793941779.0,
+    "seen": 1793942132.3023777,
+    "ast_hash": "a4f780081e4f0289ea146bfbed3e3df6",
+    "semantic_hash": ""
+  },
+  "dev/gui_smoke_phase2.py": {
+    "mtime": 1793941854.0,
+    "seen": 1793942132.302329,
+    "ast_hash": "d74d17277094d65f510c323e732b2fbf",
+    "semantic_hash": ""
+  },
+  "dev/gui_smoke_phase3.py": {
+    "mtime": 1793941854.0,
+    "seen": 1793942132.302332,
+    "ast_hash": "90528570848a8b85bab3139f396d3633",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1793941854.0,
+    "seen": 1793942132.3023717,
+    "ast_hash": "2ce61b027acb712a2aa5e957e0057f44",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1793941854.0,
+    "seen": 1793942132.3023736,
+    "ast_hash": "2ce61b027acb712a2aa5e957e0057f44",
+    "semantic_hash": ""
+  },
+  "HANDOFF.md": {
+    "mtime": 1793945899.0786388,
+    "seen": 1793946011.4778051,
+    "ast_hash": "652495d75182fc958b8bd8c9743aeae2",
+    "semantic_hash": ""
+  },
+  "dev/README.md": {
+    "mtime": 1793941854.0,
+    "seen": 1793942132.3023796,
+    "ast_hash": "03a5b8e311d0fa07c40bff3cdee0efd9",
+    "semantic_hash": ""
+  },
+  "docs/ARCHIVE_SYSTEM_PLAN.md": {
+    "mtime": 1793775070.4190466,
+    "seen": 1793942132.3023818,
+    "ast_hash": "431bc71ef490c4be12923baf52b5d559",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1793775099.8043838,
+    "seen": 1793942132.302384,
+    "ast_hash": "8eb96b62a8638d5d79bd17042fe61390",
+    "semantic_hash": ""
+  },
+  "test_phase4.py": {
+    "mtime": 1793943698.0,
+    "seen": 1793944090.2084427,
+    "ast_hash": "9fbc0653f96334b1718ff32735df4e1b",
+    "semantic_hash": ""
+  },
+  "ui/import_dialog.py": {
+    "mtime": 1793943732.0,
+    "seen": 1793944090.2084544,
+    "ast_hash": "67fee1eced662d2a0f8191fa0da1fe5a",
+    "semantic_hash": ""
+  },
+  "test_phase4b.py": {
+    "mtime": 1793944712.0,
+    "seen": 1793945376.4776156,
+    "ast_hash": "adf379f11440703d147f0f42b2ded2a1",
+    "semantic_hash": ""
+  },
+  "ui/pending_window.py": {
+    "mtime": 1793944747.0,
+    "seen": 1793945376.4776387,
+    "ast_hash": "2c2cfca124f4ba0ca1ea06a559da3065",
+    "semantic_hash": ""
+  }
+}

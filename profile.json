@@ -1,0 +1,144 @@
+{
+  "profile_name": "MNO Mogpog starter document types",
+  "document_types": [
+    {
+      "name": "Operation Timbang Plus",
+      "fields": [
+        {
+          "label": "Year",
+          "data_type": "year",
+          "is_key": true
+        },
+        {
+          "label": "Version",
+          "data_type": "dropdown",
+          "options": [
+            "v1",
+            "v2"
+          ],
+          "is_key": true
+        }
+      ]
+    },
+    {
+      "name": "BNS Database",
+      "fields": [
+        {
+          "label": "Year",
+          "data_type": "year",
+          "is_key": true
+        },
+        {
+          "label": "Quarter",
+          "data_type": "dropdown",
+          "options": [
+            "1st Quarter",
+            "2nd Quarter",
+            "3rd Quarter",
+            "4th Quarter"
+          ],
+          "is_key": true
+        }
+      ]
+    },
+    {
+      "name": "BNC Directory",
+      "fields": [
+        {
+          "label": "Year",
+          "data_type": "year",
+          "is_key": true
+        },
+        {
+          "label": "Barangay",
+          "data_type": "dropdown",
+          "options": [
+            "Anapog",
+            "Argao",
+            "Balanacan",
+            "Banto",
+            "Bintakay",
+            "Bocboc",
+            "Butansapa",
+            "Candahon",
+            "Capayang",
+            "Danao",
+            "Dulong Bayan",
+            "Gitnang Bayan",
+            "Guisian",
+            "Hinadharan",
+            "Hinanggayon",
+            "Ino",
+            "Janagdong",
+            "Lamesa",
+            "Laon",
+            "Magapua",
+            "Malayak",
+            "Malusak",
+            "Mampaitan",
+            "Mangyan-Mababad",
+            "Market Site",
+            "Mataas na Bayan",
+            "Mendez",
+            "Nangka I",
+            "Nangka II",
+            "Paye",
+            "Pili",
+            "Puting Buhangin",
+            "Sayao",
+            "Silangan",
+            "Sumangga",
+            "Tarug",
+            "Villa Mendez"
+          ],
+          "is_key": true
+        }
+      ]
+    },
+    {
+      "name": "Activity Design",
+      "fields": [
+        {
+          "label": "Year",
+          "data_type": "year"
+        },
+        {
+          "label": "Fund Source",
+          "data_type": "text"
+        },
+        {
+          "label": "Activity Name",
+          "data_type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Resolution",
+      "fields": [
+        {
+          "label": "Ref No.",
+          "data_type": "id",
+          "is_key": true
+        },
+        {
+          "label": "Source",
+          "data_type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Executive Order",
+      "fields": [
+        {
+          "label": "Ref No.",
+          "data_type": "id",
+          "is_key": true
+        },
+        {
+          "label": "Source",
+          "data_type": "text"
+        }
+      ]
+    }
+  ]
+}

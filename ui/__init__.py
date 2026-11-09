@@ -1,1 +1,1 @@
-# ui\__init__.py - placeholder
+"""User interface package (Tkinter)."""

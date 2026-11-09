@@ -1,17 +1,17 @@
-# Graph Report - ArchiveApp  (2026-11-06)
+# Graph Report - ArchiveApp  (2026-11-09)
 
 ## Corpus Check
-- 34 files · ~26,699 words
+- 34 files · ~26,828 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: .gz 2, (none) 1, .ini 1)
 
 ## Summary
-- 616 nodes · 1608 edges · 21 communities (17 shown, 4 thin omitted)
-- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 258 edges (avg confidence: 0.87)
+- 616 nodes · 1611 edges · 21 communities (17 shown, 4 thin omitted)
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 261 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1f9a61ad`
+- Built from commit: `11d825ea`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -41,26 +41,26 @@
 ## God Nodes (most connected - your core abstractions)
 1. `Archive` - 84 edges
 2. `MainWindow` - 54 edges
-3. `ArchiveError` - 48 edges
+3. `ArchiveError` - 49 edges
 4. `DocumentDialog` - 41 edges
 5. `key()` - 27 edges
 6. `AutoSuggestEntry` - 26 edges
 7. `norm()` - 25 edges
-8. `PendingWindow` - 22 edges
+8. `PendingWindow` - 23 edges
 9. `ModalWindow` - 21 edges
 10. `TypeManager` - 21 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `10. The code graph (graphify)` --references--> `DocumentDialog`  [INFERRED]
   HANDOFF.md → ui/add_dialog.py
+- `10. The code graph (graphify)` --references--> `ImportDialog`  [INFERRED]
+  HANDOFF.md → ui/import_dialog.py
 - `10. The code graph (graphify)` --references--> `MainWindow`  [INFERRED]
   HANDOFF.md → ui/main_window.py
+- `10. The code graph (graphify)` --references--> `PendingWindow`  [INFERRED]
+  HANDOFF.md → ui/pending_window.py
 - `4. Data Model` --references--> `key()`  [INFERRED]
   docs/ARCHIVE_SYSTEM_PLAN.md → services.py
-- `8. Next steps (suggested order)` --references--> `Archive`  [INFERRED]
-  HANDOFF.md → services.py
-- `4. Data Model` --references--> `tag_id()`  [INFERRED]
-  docs/ARCHIVE_SYSTEM_PLAN.md → test_phase3.py
 
 ## Import Cycles
 - None detected.
@@ -142,16 +142,16 @@ Nodes (9): 4. Decisions and why (the part the code graph cannot show), ArchiveEr
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Archive` connect `Archive` to `test_phase1.py`, `backup.py`, `_rank`, `key`, `test_phase4b.py`, `main_window.py`, `test_phase3.py`, `.update_document`, `services.py`, `test_phase4.py`?**
-  _High betweenness centrality (0.177) - this node is a cross-community bridge._
+  _High betweenness centrality (0.178) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `Archive` (e.g. with `10. The code graph (graphify)` and `5. Architecture and conventions`) actually correct?**
   _`Archive` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **Should `Archive` be split into smaller, more focused modules?**
   _Cohesion score 0.09634146341463415 - nodes in this community are weakly interconnected._
-- **Why does `ArchiveError` connect `test_phase4.py` to `Archive`, `test_phase1.py`, `TypeManager`, `MainWindow`, `DocumentDialog`, `key`, `TagInput`, `test_phase4b.py`, `main_window.py`, `test_phase3.py`, `PendingWindow`, `.update_document`?**
-  _High betweenness centrality (0.167) - this node is a cross-community bridge._
+- **Why does `ArchiveError` connect `test_phase4.py` to `Archive`, `test_phase1.py`, `TypeManager`, `MainWindow`, `DocumentDialog`, `key`, `TagInput`, `test_phase4b.py`, `main_window.py`, `test_phase3.py`, `PendingWindow`, `.update_document`, `services.py`?**
+  _High betweenness centrality (0.164) - this node is a cross-community bridge._
 - **Are the 11 inferred relationships involving `MainWindow` (e.g. with `10. The code graph (graphify)` and `ActivityLog`) actually correct?**
   _`MainWindow` has 11 INFERRED edges - model-reasoned connections that need verification._
 - **Should `TypeManager` be split into smaller, more focused modules?**
   _Cohesion score 0.05789473684210526 - nodes in this community are weakly interconnected._
 - **Why does `MainWindow` connect `MainWindow` to `TypeManager`, `DocumentDialog`, `backup.py`, `TagInput`, `main_window.py`, `PendingWindow`, `services.py`?**
-  _High betweenness centrality (0.146) - this node is a cross-community bridge._
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._

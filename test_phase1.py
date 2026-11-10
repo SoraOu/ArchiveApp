@@ -37,7 +37,7 @@ def archive_files():
 
 
 def t_schema():
-    assert arc.conn.execute("PRAGMA user_version").fetchone()[0] == 1
+    assert arc.conn.execute("PRAGMA user_version").fetchone()[0] == 2
     names = {r[0] for r in arc.conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     assert {"documents", "doc_types", "type_fields", "tags", "document_tags",
             "document_files", "audit_log", "settings"} <= names

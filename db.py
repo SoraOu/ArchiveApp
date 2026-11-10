@@ -86,7 +86,19 @@ CREATE TABLE settings (
 );
 """
 
-MIGRATIONS = [SCHEMA_V1]  # index + 1 == schema version
+SCHEMA_V2 = """
+CREATE TABLE file_ocr (
+    file_id     INTEGER PRIMARY KEY REFERENCES document_files(id) ON DELETE CASCADE,
+    document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    status      TEXT NOT NULL,
+    text        TEXT NOT NULL DEFAULT '',
+    error       TEXT NOT NULL DEFAULT '',
+    ocr_at      TEXT NOT NULL
+);
+CREATE INDEX idx_ocr_doc ON file_ocr(document_id);
+"""
+
+MIGRATIONS = [SCHEMA_V1, SCHEMA_V2]  # index + 1 == schema version
 
 
 def connect(db_path):

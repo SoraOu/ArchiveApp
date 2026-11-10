@@ -150,21 +150,21 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1793941854.0,
-    "seen": 1793942132.3023717,
-    "ast_hash": "2ce61b027acb712a2aa5e957e0057f44",
+    "mtime": 1794213500.0,
+    "seen": 1794287268.487939,
+    "ast_hash": "1e98ad2b262064c52e2bcc548fd94b2a",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793941854.0,
-    "seen": 1793942132.3023736,
-    "ast_hash": "2ce61b027acb712a2aa5e957e0057f44",
+    "mtime": 1794213500.0,
+    "seen": 1794287268.4879405,
+    "ast_hash": "1e98ad2b262064c52e2bcc548fd94b2a",
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1793946101.9041631,
-    "seen": 1794195141.3540862,
-    "ast_hash": "65a57e16fe58784d8b3812e59676b00d",
+    "mtime": 1794287262.4628541,
+    "seen": 1794287268.4879446,
+    "ast_hash": "81413826873d5624c8bfc2a25a9a157b",
     "semantic_hash": ""
   },
   "dev/README.md": {
@@ -207,6 +207,18 @@
     "mtime": 1793944747.0,
     "seen": 1793945376.4776387,
     "ast_hash": "2c2cfca124f4ba0ca1ea06a559da3065",
+    "semantic_hash": ""
+  },
+  "tools/handoff_tool.py": {
+    "mtime": 1794213500.0,
+    "seen": 1794287268.4879026,
+    "ast_hash": "81e228b50d885dc734d5f5300213534f",
+    "semantic_hash": ""
+  },
+  "FREE_CHAT_GUIDE.md": {
+    "mtime": 1794213500.0,
+    "seen": 1794287268.4879427,
+    "ast_hash": "acb6965308a1125034984fafe400f3a1",
     "semantic_hash": ""
   }
 }

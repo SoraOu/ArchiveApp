@@ -15,6 +15,7 @@ from ui.add_dialog import FILE_TYPES, DocumentDialog, open_with_default_app
 from ui.import_dialog import ImportDialog
 from ui.pending_window import PendingWindow
 from ui.maintenance import CheckDialog, start_backup
+from ui.ocr_dialog import OcrDialog
 from ui.preview import Preview
 from ui.recycle_bin import RecycleBin
 from ui.settings_window import SettingsWindow
@@ -81,6 +82,7 @@ class MainWindow:
         manage.add_command(label="Tags...", command=self.open_tag_manager)
         bar.add_cascade(label="Manage", menu=manage)
         tools = tk.Menu(bar, tearoff=0)
+        tools.add_command(label="Index scans (OCR)...", command=self.index_scans)
         tools.add_command(label="Check archive...", command=self.check_archive)
         tools.add_command(label="Activity Log...", command=self.open_activity_log)
         bar.add_cascade(label="Tools", menu=tools)
@@ -489,6 +491,12 @@ class MainWindow:
 
     def backup_now(self):
         start_backup(self.root, self.archive)
+
+    def index_scans(self):
+        dlg = OcrDialog(self.root, self.archive)
+        dlg.run()
+        if dlg.changed:
+            self.status.set("Scan text indexed. Searches now look inside the scans.")
 
     def open_settings(self):
         SettingsWindow(self.root, self.archive, on_change=self._update_title).run()

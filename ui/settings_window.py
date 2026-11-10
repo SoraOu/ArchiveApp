@@ -11,7 +11,7 @@ from ui.maintenance import CheckDialog, start_backup
 
 class SettingsWindow(ModalWindow):
     def __init__(self, parent, archive, on_change=None):
-        super().__init__(parent, "Settings", "640x470")
+        super().__init__(parent, "Settings", "640x600")
         self.archive, self.on_change = archive, on_change
         self.resizable(False, False)
         body = ttk.Frame(self, padding=14)
@@ -67,6 +67,25 @@ class SettingsWindow(ModalWindow):
             "To restore from a backup, close this program and run restore.py (see the README). "
             "It rebuilds the archive in a new, empty folder.")).grid(row=r, column=1, columnspan=2, sticky="w", padx=(10, 0))
 
+        r += 1
+        ttk.Separator(body).grid(row=r, column=0, columnspan=3, sticky="ew", pady=10)
+        r += 1
+        ttk.Label(body, text="Text in scans (OCR)", font=("TkDefaultFont", 10, "bold")).grid(row=r, column=0, sticky="w")
+        r += 1
+        ttk.Label(body, text="Tesseract program").grid(row=r, column=0, sticky="w", pady=5)
+        self.tess_var = tk.StringVar(value=archive.get_setting("tesseract_path", ""))
+        ttk.Entry(body, textvariable=self.tess_var).grid(row=r, column=1, sticky="ew", padx=(10, 0))
+        ttk.Button(body, text="Browse...", width=8, command=self._browse_tesseract).grid(row=r, column=2, padx=(6, 0))
+        r += 1
+        ttk.Label(body, text="Language").grid(row=r, column=0, sticky="w", pady=5)
+        self.lang_var = tk.StringVar(value=archive.get_setting("ocr_lang", "") or "eng")
+        ttk.Entry(body, textvariable=self.lang_var, width=12).grid(row=r, column=1, sticky="w", padx=(10, 0))
+        r += 1
+        ttk.Label(body, foreground="#666", wraplength=470, justify="left", text=(
+            "Leave the program path empty to find Tesseract automatically. eng is English. "
+            "Other languages (for example fil) need their language file installed in Tesseract. "
+            "Read new scans with Tools > Index scans.")).grid(row=r, column=1, columnspan=2, sticky="w", padx=(10, 0))
+
         bottom = ttk.Frame(self)
         bottom.pack(fill="x", padx=14, pady=(0, 12), side="bottom")
         ttk.Button(bottom, text="Cancel", command=self.destroy).pack(side="right")
@@ -97,6 +116,13 @@ class SettingsWindow(ModalWindow):
         if d:
             self.backup_var.set(d)
 
+    def _browse_tesseract(self):
+        f = filedialog.askopenfilename(parent=self, title="Choose tesseract.exe",
+                                       filetypes=[("Tesseract", "tesseract.exe"), ("All files", "*.*")])
+        self.regrab()
+        if f:
+            self.tess_var.set(f)
+
     def _store(self):
         try:
             days = max(1, min(90, int(self.days_var.get())))
@@ -105,6 +131,8 @@ class SettingsWindow(ModalWindow):
         self.archive.set_setting("office_name", self.office_var.get().strip())
         self.archive.set_setting("backup_dir", self.backup_var.get().strip())
         self.archive.set_setting("backup_reminder_days", days)
+        self.archive.set_setting("tesseract_path", self.tess_var.get().strip())
+        self.archive.set_setting("ocr_lang", self.lang_var.get().strip() or "eng")
 
     def _backup_now(self):
         self._store()

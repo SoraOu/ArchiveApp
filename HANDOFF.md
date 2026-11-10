@@ -25,15 +25,15 @@ Generated from the task board (section 8). Do not edit by hand; run `python tool
 | w1 | Verify Phases 2 and 3 on Windows and fix what breaks | Done |
 | 4a1 | Phase 4a: bulk import, logic and tests | Done |
 | 4a2 | Phase 4a: bulk import window | Done |
-| 4b | Phase 4b: watch folder for the scanner | Next |
-| 4c | Phase 4c: OCR text search | To do |
+| 4b | Phase 4b: watch folder for the scanner | Done |
+| 4c | Phase 4c: OCR text search | Next |
 | 4d | Phase 4d: thumbnails and export | To do |
 | 5 | Phase 5: read-only browser view | To do |
 | 6 | Phase 6: roles, confidential filtering, final build | To do |
 | x1 | Type setup export/import with preview | To do |
 | x2 | Data Privacy Act review, BitLocker, offsite backup | To do |
 
-8 of 15 tasks done.
+9 of 15 tasks done.
 <!-- STATUS:END -->
 
 Phases 2 and 3 were tested headless on Linux only. **The user has not yet confirmed them on Windows.**
@@ -127,8 +127,8 @@ Exactly one task should be `next`. Add new tasks as `todo` lines; never renumber
 - [done] w1 | Verify Phases 2 and 3 on Windows and fix what breaks | | Windows run of the app and both test files. Report problems; fix with the smallest change. Use the bug option for each error.
 - [done] 4a1 | Phase 4a: bulk import, logic and tests | services.py, storage.py, test_phase1.py | Add a service that imports a folder of existing scans with a default type and tags, reusing the duplicate checks. Public methods commit. Add tests first.
 - [done] 4a2 | Phase 4a: bulk import window | ui/add_dialog.py, ui/main_window.py | Add an Import Folder window with a preview list, default type and tags, and a progress bar, using the import service.
-- [next] 4b | Phase 4b: watch folder for the scanner | services.py, ui/main_window.py | Files dropped by the scanner appear in a Pending list that the user files one by one.
-- [todo] 4c | Phase 4c: OCR text search | services.py, db.py, storage.py | Background OCR with Tesseract so text inside scans becomes searchable. Needs a schema migration. Tesseract is not installed yet.
+- [done] 4b | Phase 4b: watch folder for the scanner | services.py, ui/main_window.py | Files dropped by the scanner appear in a Pending list that the user files one by one.
+- [next] 4c | Phase 4c: OCR text search | services.py, db.py, storage.py | Background OCR with Tesseract so text inside scans becomes searchable. Needs a schema migration. Tesseract is not installed yet.
 - [todo] 4d | Phase 4d: thumbnails and export | services.py, ui/main_window.py | Thumbnails for faster browsing; export search results to CSV or Excel (low priority).
 - [todo] 5 | Phase 5: read-only browser view | services.py, app.py, db.py | Flask + waitress in a background thread, 0.0.0.0, reusing services.py, one Archive per thread, write routes refused. Never exposed to the internet.
 - [todo] 6 | Phase 6: roles, confidential filtering, final build | services.py, app.py, ui/main_window.py | View-only access if wanted, hide confidential documents from browser users, final build with python -m PyInstaller (prefer --onedir), auto-start, README update.
@@ -182,3 +182,4 @@ Newest last. Written by `tools\handoff_tool.py --milestone`.
 - 2026-11-10: 4a1 done - Phase 4a: bulk import, logic and tests. Bulk import logic already existed: scan_folder and import_files in services.py, test_phase4.py 6 of 6 pass on Windows. Board was stale. Not seen this session: services.py code. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS.
 - 2026-11-10: 4a1 done - Phase 4a: bulk import, logic and tests. Bulk import logic already existed: scan_folder and import_files in services.py, test_phase4.py 6 of 6 pass on Windows. Board was stale. Not seen this session: services.py code. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS.
 - 2026-11-10: 4a2 done - Phase 4a: bulk import window. Import Folder window already existed: preview list, default type, tags and progress bar confirmed working on Windows by the user. Board was stale. Not seen this session: UI code. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS.
+- 2026-11-10: 4b done - Phase 4b: watch folder for the scanner. Scanner inbox already existed: test_phase4b.py passes, a PDF dropped in the watch folder appears in the Scanner inbox list, confirmed by the user on Windows. Board was stale. Not tested: filing a pending item from the inbox. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS.

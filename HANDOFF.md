@@ -36,11 +36,11 @@ Generated from the task board (section 8). Do not edit by hand; run `python tool
 10 of 15 tasks done.
 <!-- STATUS:END -->
 
-Phases 2 and 3 were tested headless on Linux only. **The user has not yet confirmed them on Windows.**
+Phases 2 and 3 were verified on Windows by the user on 2026-11-10 (app start, open file, show in folder, PDF preview, DPI/layout, Recycle Bin, backup, Settings). Phase 4 (bulk import, Scanner inbox, OCR text search) is built and confirmed working on Windows.
 
-Test suites (all pass): `test_phase1.py` (18), `test_phase3.py` (13), `dev/gui_smoke_phase2.py`, `dev/gui_smoke_phase3.py`.
-**Untested on Windows:** `os.startfile`, `explorer /select`, high-DPI behaviour, the `vista` ttk theme, PyMuPDF 2.1
-import name (code tries `pymupdf` then `fitz`). First thing to do: ask the user how Phase 2/3 behaved on their PC.
+Test suites (all pass on the user's PC, 2026-11-10): `test_phase1.py` (18), `test_phase3.py` (13), `test_phase4.py` (6), `test_phase4b.py`, `test_phase4c.py` (10), `dev/gui_smoke_phase2.py`, `dev/gui_smoke_phase3.py`.
+**Still untested:** `restore.py`, filing a pending item from the Scanner inbox, OCR on multi-page or very large PDFs, OCR in a language other than English. The Index scans dialog and the OCR section of Settings were only run by the user: Tk is not available in the Linux test environment, so UI code is compile-checked there and confirmed on Windows.
+First thing to do next chat: ask what to build next (4d thumbnails/export is low priority; 5 is the browser view).
 
 ## 3. Environment (user's machine)
 - Windows, Python 3.14.5, Git 2.54. Project: `C:\Users\Admin\Desktop\JO things\Project\archive_system\ArchiveApp`.
@@ -48,7 +48,7 @@ import name (code tries `pymupdf` then `fitz`). First thing to do: ask the user 
 - **Device Guard** is active: always use `python -m pip ...` and `python -m PyInstaller ...`, never `pip` / `pyinstaller`
   directly. A test PyInstaller .exe built and ran fine.
 - Libraries (requirements.txt): Pillow, PyMuPDF, openpyxl, pyinstaller, flask, waitress, pytesseract, watchdog.
-  Tesseract OCR is **not installed** yet (only needed for OCR).
+  Tesseract OCR 5.5.3 is installed at `C:\Program Files\Tesseract-OCR` (found automatically; path and language can be set in Settings).
 - Data stays on that PC only (no cloud sync). Default data folder: `ArchiveApp\data` (override with `data_dir` in config.ini).
 - Do not put `data\`, `backups\`, `samples\`, `config.ini` or scans into Git or into any handoff. They are confidential.
 
@@ -69,6 +69,7 @@ import name (code tries `pymupdf` then `fitz`). First thing to do: ask the user 
 9. **Nothing office-specific in code.** Starter types live in `profile.json`; office name etc. in settings.
 10. **Backups are incremental folder copies** (DB snapshots via SQLite backup API + mirrored `archive\`), restored with `restore.py` into a new empty folder.
 11. **Scope kept small on purpose** (see section 1). Resist adding workflow features.
+12. **OCR text search (4c).** Text from scans lives in its own table `file_ocr` (one row per file; status done/empty/failed; text stored casefolded), not in `documents.search_text`, so search text stays small and backups include it. `search()` matches each query word against `search_text` OR the OCR text, so Phase 6 confidential filtering (`include_confidential=False`) also hides OCR matches; never expose `file_ocr.text` any other way. PDF pages that already have a text layer (25+ characters) are read directly; only picture-only pages go to Tesseract. Scans are read on demand from Tools > Index scans (OCR), not automatically. Failed files are retried only when the user ticks the box. Default language `eng`; settings `tesseract_path` and `ocr_lang`. Existing scans are queued automatically after the v2 upgrade because they have no `file_ocr` row.
 
 ## 5. Architecture and conventions
 ```
@@ -77,8 +78,9 @@ db.py             schema + migrations (PRAGMA user_version). Add a new entry to 
 storage.py        hashing, safe copy (tmp then os.replace), path guard, data-dir lookup
 services.py       ALL rules. class Archive. The UI and the future web server call only this
 backup.py/restore.py   backup + restore (pure functions, no UI)
+ocr.py            Tesseract lookup and text extraction from images/PDFs (pure functions, no DB, no UI)
 ui/               Tkinter screens (main_window, add_dialog, type_dialogs, type_manager, tag_manager,
-                  settings_window, maintenance, activity_log, recycle_bin, preview, widgets, common)
+                  settings_window, maintenance, ocr_dialog, activity_log, recycle_bin, preview, widgets, common)
 ```
 Conventions that matter:
 - **UI never touches SQL.** Add logic to `services.py` and test it in `test_phase*.py` first.
@@ -100,13 +102,15 @@ Conventions that matter:
   ```
 - Autosuggest popups are `Listbox.place()`d on the toplevel (not separate windows) so they work inside modal dialogs.
 - Windows-hostile characters in names are sanitized in `storage.sanitize_filename`.
+- A background thread that writes to the database creates its own `Archive(data_dir)` and closes it at the end (see `ui/ocr_dialog.py`). It never shares the UI's connection.
 
-## 6. Data model (schema version 1)
+## 6. Data model (schema version 2)
 `doc_types(id, name, name_key, is_active)` - `type_fields(id, type_id, label, label_key, data_type, options JSON, is_key,
 is_required, is_active, sort_order)` - `documents(id, name, type_id, doc_date, details JSON, notes, is_confidential,
 search_text, date_added, last_edited, is_deleted, deleted_at)` - `document_files(id, document_id, file_path, original_filename,
 file_hash, size_bytes, sort_order)` - `tags(id, name, name_key)` - `document_tags` - `audit_log` - `settings(key, value)`.
 Data types: text, longtext, number, id, year, date, name, yesno, dropdown.
+Schema v2 (Phase 4c): `file_ocr(file_id PK -> document_files, document_id -> documents, status, text, error, ocr_at)`, both foreign keys ON DELETE CASCADE.
 
 ## 7. Starter types (`profile.json`, 6 of ~20)
 Operation Timbang Plus (Year, Version v1/v2), BNS Database (Year, Quarter), BNC Directory (Year, Barangay dropdown),
@@ -135,7 +139,7 @@ Exactly one task should be `next`. Add new tasks as `todo` lines; never renumber
 - [todo] x1 | Type setup export/import with preview | services.py, ui/type_manager.py, ui/common.py | Share document types between offices; the import only adds, never overwrites.
 - [todo] x2 | Data Privacy Act review, BitLocker, offsite backup | | Non-code checklist for the office (RA 10173).
 
-Before 4a: collect the remaining ~14 document types from the user (format `Type: detail (data type), ...`) and ask what "Source" holds for Resolutions and Executive Orders.
+Open since 2026-11-10 (the user postponed it): collect the remaining ~14 document types (format `Type: detail (data type), ...`) and ask what "Source" holds for Resolutions and Executive Orders. It does not block 4d, 5 or 6.
 
 ## 9. Working with this user
 Direct and concise; minimal scaffolding; clean, ready-to-use files. Test before sending and say plainly what is untested.

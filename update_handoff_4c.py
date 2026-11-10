@@ -41,7 +41,7 @@ Schema v2 (Phase 4c): `file_ocr(file_id PK -> document_files, document_id -> doc
 ]
 
 text = PATH.read_text(encoding="utf-8")
-if "file_ocr" in text:
+if "12. **OCR text search (4c).**" in text:
     print("HANDOFF.md already has the 4c notes. Nothing to do.")
     raise SystemExit(0)
 skipped = 0

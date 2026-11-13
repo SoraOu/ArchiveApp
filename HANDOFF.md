@@ -1,6 +1,6 @@
 # HANDOFF - Office Document Archive
 
-Read this first, then `graphify-out/GRAPH_REPORT.md` (code map), then work. Last updated: 2026-11-10. This file is kept current by `tools\handoff_tool.py` (see section 11): the task board in section 8 drives the chat bundles, and every milestone must be recorded here.
+Read this first, then `graphify-out/GRAPH_REPORT.md` (code map), then work. Last updated: 2026-11-13. This file is kept current by `tools\handoff_tool.py` (see section 11): the task board in section 8 drives the chat bundles, and every milestone must be recorded here.
 
 ## 1. What this is
 A desktop app (Python + Tkinter + SQLite) that works as a **finding aid** for an office's scanned documents:
@@ -27,13 +27,13 @@ Generated from the task board (section 8). Do not edit by hand; run `python tool
 | 4a2 | Phase 4a: bulk import window | Done |
 | 4b | Phase 4b: watch folder for the scanner | Done |
 | 4c | Phase 4c: OCR text search | Done |
-| 4d | Phase 4d: thumbnails and export | Next |
-| 5 | Phase 5: read-only browser view | To do |
-| 6 | Phase 6: roles, confidential filtering, final build | To do |
+| 4d | Phase 4d: thumbnails and export | Done |
+| 5 | Phase 5: read-only browser view | Done |
+| 6 | Phase 6: roles, confidential filtering, final build | Next |
 | x1 | Type setup export/import with preview | To do |
 | x2 | Data Privacy Act review, BitLocker, offsite backup | To do |
 
-10 of 15 tasks done.
+12 of 15 tasks done.
 <!-- STATUS:END -->
 
 Phases 2 and 3 were verified on Windows by the user on 2026-11-10 (app start, open file, show in folder, PDF preview, DPI/layout, Recycle Bin, backup, Settings). Phase 4 (bulk import, Scanner inbox, OCR text search) is built and confirmed working on Windows.
@@ -133,9 +133,9 @@ Exactly one task should be `next`. Add new tasks as `todo` lines; never renumber
 - [done] 4a2 | Phase 4a: bulk import window | ui/add_dialog.py, ui/main_window.py | Add an Import Folder window with a preview list, default type and tags, and a progress bar, using the import service.
 - [done] 4b | Phase 4b: watch folder for the scanner | services.py, ui/main_window.py | Files dropped by the scanner appear in a Pending list that the user files one by one.
 - [done] 4c | Phase 4c: OCR text search | services.py, db.py, storage.py | Background OCR with Tesseract so text inside scans becomes searchable. Needs a schema migration. Tesseract is not installed yet.
-- [next] 4d | Phase 4d: thumbnails and export | services.py, ui/main_window.py | Thumbnails for faster browsing; export search results to CSV or Excel (low priority).
-- [todo] 5 | Phase 5: read-only browser view | services.py, app.py, db.py | Flask + waitress in a background thread, 0.0.0.0, reusing services.py, one Archive per thread, write routes refused. Never exposed to the internet.
-- [todo] 6 | Phase 6: roles, confidential filtering, final build | services.py, app.py, ui/main_window.py | View-only access if wanted, hide confidential documents from browser users, final build with python -m PyInstaller (prefer --onedir), auto-start, README update.
+- [done] 4d | Phase 4d: thumbnails and export | services.py, ui/main_window.py | Thumbnails for faster browsing; export search results to CSV or Excel (low priority).
+- [done] 5 | Phase 5: read-only browser view | services.py, app.py, db.py | Flask + waitress in a background thread, 0.0.0.0, reusing services.py, one Archive per thread, write routes refused. Never exposed to the internet.
+- [next] 6 | Phase 6: roles, confidential filtering, final build | services.py, app.py, ui/main_window.py | View-only access if wanted, hide confidential documents from browser users, final build with python -m PyInstaller (prefer --onedir), auto-start, README update.
 - [todo] x1 | Type setup export/import with preview | services.py, ui/type_manager.py, ui/common.py | Share document types between offices; the import only adds, never overwrites.
 - [todo] x2 | Data Privacy Act review, BitLocker, offsite backup | | Non-code checklist for the office (RA 10173).
 
@@ -189,3 +189,7 @@ Newest last. Written by `tools\handoff_tool.py --milestone`.
 - 2026-11-10: 4b done - Phase 4b: watch folder for the scanner. Scanner inbox already existed: test_phase4b.py passes, a PDF dropped in the watch folder appears in the Scanner inbox list, confirmed by the user on Windows. Board was stale. Not tested: filing a pending item from the inbox. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS.
 - 2026-11-10: 4c done - Phase 4c: OCR text search. OCR text search built and confirmed on Windows: file_ocr table (schema v2), ocr.py, Index scans dialog, OCR settings. test_phase1, 3, 4, 4b and 4c pass; test_phase1 schema check updated to version 2. Not tested: OCR on multi-page or very large PDFs, non-English text. Not done: automatic indexing after import. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS; test_phase4c.py PASS.
 - 2026-11-10: 4c done - Phase 4c: OCR text search. OCR text search built and confirmed on Windows: file_ocr table (schema v2), ocr.py, Index scans dialog, OCR settings. test_phase1, 3, 4, 4b and 4c pass; test_phase1 schema check updated to version 2. Not tested: OCR on multi-page or very large PDFs, non-English text. Not done: automatic indexing after import. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS; test_phase4c.py PASS.
+- 2026-11-11: 4d done - Phase 4d: thumbnails and export. Thumbnails (thumbs.py, cached in data\thumbs) and export to CSV/xlsx built. test_phase4d.py 12 of 12 pass on Windows. Thumbnails in the results list, the View toggle and File > Export results confirmed on Windows. Not tested: thumbnails of multi-page or very large TIFF/PDF, export of thousands of rows. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS; test_phase4c.py PASS; test_phase4d.py PASS.
+
+14. **Browser view (5).** `webserver.py` (Flask + waitress, background thread, 0.0.0.0, default port 8080) is read-only: only GET/HEAD, `Archive(read_only=True)` sets `PRAGMA query_only`, one Archive per server thread. Every page goes through `Archive.public_*`, which never return confidential or deleted documents (search, tags, types, document, files, thumbnails); a hidden document answers like a missing one. Only PDFs and common images open inline, everything else downloads. Settings `web_enabled` and `web_port`, set in Tools > Browser view; turning it off or changing the port needs an app restart. There is no login: anyone on the network can read non-confidential documents. Phase 6: roles, and add flask/waitress to the PyInstaller build.
+- 2026-11-13: 5 done - Phase 5: read-only browser view. Read-only browser view built (webserver.py, Archive public_* methods, read_only connection, Tools > Browser view). test_phase5.py passes on Windows. Confirmed on Windows: <what you checked in the browser>. Not tested: PDF inline view on phones, access through the Windows firewall from other PCs, long-running use. Tests: test_phase1.py PASS; test_phase3.py PASS; test_phase4.py PASS; test_phase4b.py PASS; test_phase4c.py PASS; test_phase4d.py PASS; test_phase5.py PASS.

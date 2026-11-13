@@ -4,9 +4,11 @@ The desktop UI (and later the web server) should only call the Archive class her
 Rule used throughout: public methods commit their own work; helpers that start
 with an underscore never commit, so they can be combined into one transaction.
 """
+import csv
 import difflib
 import json
 import math
+import os
 import re
 import time
 from collections import defaultdict
@@ -16,6 +18,7 @@ from pathlib import Path
 import db
 import ocr
 import storage
+import thumbs
 
 DATA_TYPES = ("text", "longtext", "number", "id", "year", "date", "name", "yesno", "dropdown")
 _UNSET = object()
@@ -156,17 +159,26 @@ def suggest_from_list(candidates, text, limit=8):
     return _rank(candidates, text, limit)
 
 
+def _csv_safe(value):
+    """Stop Excel from running a cell that starts with = + - @ as a formula (CSV only)."""
+    if isinstance(value, str) and value[:1] in ("=", "+", "-", "@"):
+        return "'" + value
+    return value
+
+
 def _like(token):
     return "%" + token.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
 
 
 # ---------------------------------------------------------------- main class
 class Archive:
-    def __init__(self, data_dir=None):
+    def __init__(self, data_dir=None, read_only=False):
         self.data_dir = Path(data_dir) if data_dir else storage.default_data_dir()
         self.storage = storage.Storage(self.data_dir)
         self.conn = db.connect(self.data_dir / "archive.db")
         db.migrate(self.conn)
+        if read_only:                          # the browser view: SQLite itself refuses every write
+            self.conn.execute("PRAGMA query_only = ON")
         self._hash_cache = {}                  # (path, size, mtime) -> hash, for the scanner inbox
 
     def close(self):
@@ -1160,6 +1172,185 @@ class Archive:
                           f"{report['done']} read, {report['empty']} without text, {len(report['failed'])} failed"
                           + (" (stopped early)" if report["cancelled"] else ""))
         return report
+
+    # ------------------------------------------------------------ thumbnails
+    THUMB_SIZE = 96
+
+    def thumbnail_for_document(self, doc_id, size=THUMB_SIZE):
+        """Path of a small PNG of the document's first file, or None when there is no picture.
+        Made on first request and cached in data\\thumbs, named by the file's content hash, so it
+        never goes stale. The cache is not part of backups and is safe to delete (it is rebuilt).
+        A file that cannot be read leaves a .none marker so it is not retried every time.
+        Reads the database only; never commits."""
+        row = self.conn.execute(
+            "SELECT file_path, file_hash FROM document_files WHERE document_id=? "
+            "ORDER BY sort_order, id LIMIT 1", (doc_id,)).fetchone()
+        if not row or Path(row["file_path"]).suffix.lower() not in thumbs.THUMB_EXTS:
+            return None
+        size = int(size)
+        dest = self.data_dir / "thumbs" / row["file_hash"][:2] / f"{row['file_hash']}_{size}_v2.png"
+        if dest.is_file():
+            return dest
+        marker = dest.with_suffix(".none")
+        if marker.is_file() or not self.storage.exists(row["file_path"]):
+            return None
+        if thumbs.make_thumbnail(self.storage.abs_path(row["file_path"]), dest, size):
+            return dest
+        try:
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            marker.touch()
+        except OSError:
+            pass
+        return None
+
+    # ------------------------------------------------------------ export
+    EXPORT_COLUMNS = ("Name", "Type", "Reference", "Document date", "Tags", "Confidential",
+                      "Date added", "Files")
+
+    def export_rows(self, query="", type_id=None, tags=None, date_from=None, date_to=None,
+                    include_confidential=True, sort="added_desc", page_size=500):
+        """Every document that matches the same filters as search() (not just the first page).
+        Returns (headers, rows). Reads only."""
+        rows, offset = [], 0
+        while True:
+            res = self.search(query=query, type_id=type_id, tags=tags, date_from=date_from,
+                              date_to=date_to, include_confidential=include_confidential,
+                              sort=sort, limit=page_size, offset=offset)
+            for r in res["results"]:
+                rows.append([r["name"], r["type_name"] or "", r["ref"], r["doc_date"] or "",
+                             ", ".join(r["tags"]), "Yes" if r["is_confidential"] else "",
+                             r["date_added"].replace("T", " "), r["file_count"]])
+            offset += len(res["results"])
+            if not res["results"] or offset >= res["total"]:
+                break
+        return list(self.EXPORT_COLUMNS), rows
+
+    def export_file(self, path, **filters):
+        """Write the matching documents to a .csv (UTF-8, opens in Excel) or .xlsx file.
+        Takes the same filters as export_rows(). Returns the number of documents written."""
+        path = Path(path)
+        ext = path.suffix.lower()
+        if ext not in (".csv", ".xlsx"):
+            raise ArchiveError("Choose a file name ending in .csv or .xlsx")
+        headers, rows = self.export_rows(**filters)
+        tmp = path.with_name(path.name + ".tmp")
+        try:
+            if ext == ".csv":
+                with open(tmp, "w", newline="", encoding="utf-8-sig") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(headers)
+                    for r in rows:
+                        writer.writerow([_csv_safe(c) for c in r])
+            else:
+                from openpyxl import Workbook
+                from openpyxl.styles import Font
+                wb = Workbook()
+                ws = wb.active
+                ws.title = "Documents"
+                for ci, h in enumerate(headers, start=1):
+                    ws.cell(1, ci, h).font = Font(bold=True)
+                for ri, r in enumerate(rows, start=2):
+                    for ci, v in enumerate(r, start=1):
+                        cell = ws.cell(ri, ci, v)
+                        if isinstance(v, str) and v.startswith("="):
+                            cell.data_type = "s"                       # keep it text, never a formula
+                for ci, h in enumerate(headers, start=1):
+                    widest = max([len(str(h))] + [len(str(r[ci - 1])) for r in rows])
+                    ws.column_dimensions[ws.cell(1, ci).column_letter].width = min(max(widest + 2, 10), 60)
+                ws.freeze_panes = "A2"
+                wb.save(tmp)
+            os.replace(tmp, path)
+        except OSError as e:
+            raise ArchiveError(f"Could not write {path.name}: {e}")
+        finally:
+            tmp.unlink(missing_ok=True)
+        with self.conn:
+            self._log("export", None, f"{len(rows)} document(s) to {path.name}"
+                      + ("" if filters.get("include_confidential", True) else " (confidential left out)"))
+        return len(rows)
+
+    # ------------------------------------------------------------ public (browser) views
+    # Everything the browser view shows goes through these methods. They never return confidential
+    # or deleted documents, and none of them can be told to. They only read the database.
+    def _is_public(self, doc_id):
+        return self.conn.execute(
+            "SELECT 1 FROM documents WHERE id=? AND is_deleted=0 AND is_confidential=0",
+            (doc_id,)).fetchone() is not None
+
+    def public_search(self, query="", type_id=None, tags=None, sort="added_desc", limit=50, offset=0):
+        res = self.search(query=query, type_id=type_id, tags=tags, include_confidential=False,
+                          sort=sort, limit=limit, offset=offset)
+        for r in res["results"]:
+            r.pop("is_confidential", None)
+        return res
+
+    def public_types(self):
+        """Types that have at least one public document, with the number of public documents."""
+        rows = self.conn.execute(
+            "SELECT t.id, t.name, COUNT(d.id) AS doc_count FROM doc_types t "
+            "JOIN documents d ON d.type_id=t.id AND d.is_deleted=0 AND d.is_confidential=0 "
+            "WHERE t.is_active=1 GROUP BY t.id ORDER BY t.name_key").fetchall()
+        return [dict(r) for r in rows]
+
+    def public_tags(self):
+        """Tags used by at least one public document, counting public documents only."""
+        rows = self.conn.execute(
+            "SELECT t.name, COUNT(d.id) AS count FROM tags t "
+            "JOIN document_tags dt ON dt.tag_id=t.id "
+            "JOIN documents d ON d.id=dt.document_id AND d.is_deleted=0 AND d.is_confidential=0 "
+            "GROUP BY t.id ORDER BY t.name_key").fetchall()
+        return [dict(r) for r in rows]
+
+    def public_document(self, doc_id):
+        """What the browser may show about a document, or None. No server paths are included."""
+        if not self._is_public(doc_id):
+            return None
+        d = self.get_document(doc_id)
+        return {
+            "id": d["id"], "name": d["name"], "type_name": d["type_name"], "doc_date": d["doc_date"],
+            "notes": d["notes"], "date_added": d["date_added"], "tags": d["tags"],
+            "fields": [{"label": f["label"], "value": format_value(f["data_type"], f["value"])}
+                       for f in d["fields"] if f["value"] not in (None, "")],
+            "files": [{"id": f["id"], "name": f["original_filename"], "size_bytes": f["size_bytes"],
+                       "exists": f["exists"]} for f in d["files"]]}
+
+    def public_file(self, doc_id, file_id):
+        """{"path", "name"} of one stored file of a public document, or None."""
+        if not self._is_public(doc_id):
+            return None
+        row = self.conn.execute(
+            "SELECT file_path, original_filename FROM document_files WHERE id=? AND document_id=?",
+            (file_id, doc_id)).fetchone()
+        if not row or not self.storage.exists(row["file_path"]):
+            return None
+        return {"path": self.storage.abs_path(row["file_path"]), "name": row["original_filename"]}
+
+    def public_thumbnail(self, doc_id, size=THUMB_SIZE):
+        if not self._is_public(doc_id):
+            return None
+        return self.thumbnail_for_document(doc_id, size)
+
+    # ------------------------------------------------------------ browser view settings
+    WEB_DEFAULT_PORT = 8080
+
+    def web_settings(self):
+        try:
+            port = int(self.get_setting("web_port", self.WEB_DEFAULT_PORT))
+        except (TypeError, ValueError):
+            port = self.WEB_DEFAULT_PORT
+        return {"enabled": self.get_setting("web_enabled", "0") == "1", "port": port}
+
+    def set_web_settings(self, enabled, port):
+        try:
+            port = int(str(port).strip())
+        except ValueError:
+            raise ArchiveError("The port must be a number between 1024 and 65535.")
+        if not 1024 <= port <= 65535:
+            raise ArchiveError("The port must be a number between 1024 and 65535.")
+        self.set_setting("web_enabled", "1" if enabled else "0")
+        self.set_setting("web_port", port)
+        with self.conn:
+            self._log("web_settings", None, f"browser view {'on' if enabled else 'off'}, port {port}")
 
     # ------------------------------------------------------------ scanner inbox (watch folder)
     WATCH_SETTLE_SECONDS = 3

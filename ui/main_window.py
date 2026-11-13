@@ -2,6 +2,7 @@
 import logging
 import subprocess
 import sys
+import time
 import tkinter as tk
 import tkinter.font as tkfont
 from datetime import date
@@ -21,6 +22,7 @@ from ui.recycle_bin import RecycleBin
 from ui.settings_window import SettingsWindow
 from ui.tag_manager import TagManager
 from ui.type_manager import TypeManager
+from ui.web_dialog import WebDialog
 
 log = logging.getLogger("archive")
 
@@ -40,12 +42,18 @@ class MainWindow:
         self._current_id = None
         self._current_files = []
         self._pending_win = None
+        self._thumb_imgs = {}                  # doc id -> PhotoImage (must stay referenced)
+        self._thumb_todo = []
+        self._thumb_job = None
+        self.show_thumbs = tk.BooleanVar(master=root, value=archive.get_setting("show_thumbnails", "1") == "1")
 
         root.title("Office Document Archive")
         root.geometry("1320x780")
         root.minsize(1050, 620)
         scale = root.winfo_fpixels("1i") / 96
         ttk.Style(root).configure("Treeview", rowheight=int(24 * scale))
+        self._row_h = int(24 * scale)
+        self._thumb_px = max(32, int(44 * scale))
         base = tkfont.nametofont("TkDefaultFont")
         self.bold = base.copy()
         self.bold.configure(weight="bold")
@@ -70,6 +78,7 @@ class MainWindow:
         file_menu.add_command(label="Add Document...", accelerator="Ctrl+N", command=self.add_document)
         file_menu.add_command(label="Scanner inbox...", command=self.open_pending)
         file_menu.add_command(label="Import folder of scans...", command=self.import_folder)
+        file_menu.add_command(label="Export results...", command=self.export_results)
         file_menu.add_command(label="Recycle Bin", command=self.open_recycle_bin)
         file_menu.add_separator()
         file_menu.add_command(label="Back up now", command=self.backup_now)
@@ -85,10 +94,13 @@ class MainWindow:
         tools.add_command(label="Index scans (OCR)...", command=self.index_scans)
         tools.add_command(label="Check archive...", command=self.check_archive)
         tools.add_command(label="Activity Log...", command=self.open_activity_log)
+        tools.add_command(label="Browser view...", command=self.open_web_dialog)
         bar.add_cascade(label="Tools", menu=tools)
         view = tk.Menu(bar, tearoff=0)
         view.add_command(label="Refresh", accelerator="F5", command=self.refresh_all)
         view.add_command(label="Clear filters", command=self.clear_filters)
+        view.add_separator()
+        view.add_checkbutton(label="Show thumbnails", variable=self.show_thumbs, command=self.toggle_thumbnails)
         bar.add_cascade(label="View", menu=view)
         helpm = tk.Menu(bar, tearoff=0)
         helpm.add_command(label="About", command=self.about)
@@ -144,7 +156,8 @@ class MainWindow:
         # results
         mid = ttk.Frame(body)
         cols = ("name", "type", "ref", "date", "tags", "conf")
-        self.tree = ttk.Treeview(mid, columns=cols, show="headings", selectmode="browse")
+        self.tree = ttk.Treeview(mid, columns=cols, show="headings", selectmode="browse",
+                                 style="Results.Treeview")
         for col, text, w, stretch in (("name", "Name", 210, True), ("type", "Type", 110, False),
                                       ("ref", "Reference", 95, False), ("date", "Doc date", 80, False),
                                       ("tags", "Tags", 110, True), ("conf", "Conf.", 42, False)):
@@ -158,6 +171,7 @@ class MainWindow:
         self.tree.bind("<Double-1>", lambda e: self.open_file())
         self.tree.bind("<Return>", lambda e: self.open_file())
         self.tree.bind("<Delete>", lambda e: self.delete_document())
+        self._apply_thumb_mode()
         body.add(mid, weight=3)
 
         # preview + details
@@ -254,9 +268,10 @@ class MainWindow:
         keep = select if select is not None else self._current_id
         self.tree.delete(*self.tree.get_children())
         for r in res["results"]:
-            self.tree.insert("", "end", iid=str(r["id"]), values=(
+            self.tree.insert("", "end", iid=str(r["id"]), image=self._thumb_imgs.get(r["id"], ""), values=(
                 r["name"], r["type_name"] or "", r["ref"], r["doc_date"] or "",
                 ", ".join(r["tags"]), "Yes" if r["is_confidential"] else ""))
+        self._queue_thumbs([r["id"] for r in res["results"]])
         shown, total = len(res["results"]), res["total"]
         filtering = bool(self.search_var.get().strip() or type_id or self.sel_tags)
         self.status.set(
@@ -269,6 +284,63 @@ class MainWindow:
         else:
             self._current_id = None
             self._show_details(None)
+
+    # ------------------------------------------------------------ thumbnails
+    def _apply_thumb_mode(self):
+        on = self.show_thumbs.get()
+        ttk.Style(self.root).configure("Results.Treeview", rowheight=self._thumb_px + 8 if on else self._row_h)
+        self.tree.configure(show="tree headings" if on else "headings")
+        self.tree.heading("#0", text="")
+        col_w = self._thumb_px + 20 + int(14 * self._thumb_px / 44)    # 20 px tree indent + picture + margin
+        self.tree.column("#0", width=col_w, minwidth=col_w, stretch=False, anchor="center")
+
+    def toggle_thumbnails(self):
+        self.archive.set_setting("show_thumbnails", "1" if self.show_thumbs.get() else "0")
+        self._apply_thumb_mode()
+        self.refresh()
+
+    def _queue_thumbs(self, ids):
+        """Fill in thumbnails a few at a time so the list appears at once and stays responsive."""
+        self._thumb_todo = [i for i in ids if i not in self._thumb_imgs] if self.show_thumbs.get() else []
+        if self._thumb_todo and self._thumb_job is None:
+            self._thumb_job = self.root.after(20, self._thumb_tick)
+
+    def _thumb_tick(self):
+        self._thumb_job = None
+        start = time.monotonic()
+        while self._thumb_todo and time.monotonic() - start < 0.05:
+            doc_id = self._thumb_todo.pop(0)
+            if not self.tree.exists(str(doc_id)):
+                continue
+            try:
+                path = self.archive.thumbnail_for_document(doc_id, self._thumb_px)
+                if path is None:
+                    continue
+                img = tk.PhotoImage(file=str(path))
+            except Exception:
+                log.exception("thumbnail failed")
+                continue
+            self._thumb_imgs[doc_id] = img
+            self.tree.item(str(doc_id), image=img)
+        if self._thumb_todo:
+            self._thumb_job = self.root.after(15, self._thumb_tick)
+
+    def export_results(self):
+        """Save the documents matching the current search and filters to .xlsx or .csv."""
+        path = filedialog.asksaveasfilename(
+            parent=self.root, title="Export results", defaultextension=".xlsx", initialfile="documents",
+            filetypes=[("Excel workbook", "*.xlsx"), ("CSV (opens in Excel)", "*.csv")])
+        if not path:
+            return
+        try:
+            n = self.archive.export_file(
+                path, query=self.search_var.get(), type_id=self._type_ids.get(self.type_var.get()),
+                tags=sorted(self.sel_tags), sort=SORTS.get(self.sort_var.get(), "added_desc"))
+        except Exception as e:
+            log.exception("export failed")
+            messagebox.showerror("Export failed", str(e), parent=self.root)
+            return
+        self.status.set(f"Exported {n} document(s) to {Path(path).name}")
 
     def _refresh_tags(self):
         needle = self.tag_filter_var.get().strip().casefold()
@@ -497,6 +569,9 @@ class MainWindow:
         dlg.run()
         if dlg.changed:
             self.status.set("Scan text indexed. Searches now look inside the scans.")
+
+    def open_web_dialog(self):
+        WebDialog(self.root, self.archive).run()
 
     def open_settings(self):
         SettingsWindow(self.root, self.archive, on_change=self._update_title).run()

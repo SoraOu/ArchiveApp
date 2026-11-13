@@ -46,6 +46,14 @@ def main():
         return
 
     MainWindow(root, archive)
+    try:                                       # read-only browser view, only if switched on in Tools > Browser view
+        import webserver
+        running, message = webserver.autostart(data_dir, archive)
+        log.info(message)
+        if not running and archive.web_settings()["enabled"]:
+            messagebox.showwarning("Browser view", message)
+    except Exception:
+        log.exception("browser view failed to start")
     root.protocol("WM_DELETE_WINDOW", root.destroy)
     root.mainloop()
     archive.close()

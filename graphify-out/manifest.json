@@ -1,8 +1,8 @@
 {
   "app.py": {
-    "mtime": 1793941779.0,
-    "seen": 1793942132.3023133,
-    "ast_hash": "a5ae80146541050fada1e46d79220be4",
+    "mtime": 1794555194.594799,
+    "seen": 1794555394.0816724,
+    "ast_hash": "92f417413bb64a687a29551841b477d2",
     "semantic_hash": ""
   },
   "backup.py": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "services.py": {
-    "mtime": 1794289031.5607464,
-    "seen": 1794290950.1727324,
-    "ast_hash": "8adc2b1df3b1a8e0ba44ae3be34c8ef0",
+    "mtime": 1794555194.594799,
+    "seen": 1794555394.0817494,
+    "ast_hash": "e8815e1a8647b0f61dd4e6776cdca676",
     "semantic_hash": ""
   },
   "storage.py": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "ui/main_window.py": {
-    "mtime": 1794290029.5012836,
-    "seen": 1794290950.1727617,
-    "ast_hash": "0ea8b680524ebef2aeeab6e408906e97",
+    "mtime": 1794555194.594799,
+    "seen": 1794555394.0818415,
+    "ast_hash": "24df850282ac3755fda36757775ccaa3",
     "semantic_hash": ""
   },
   "ui/maintenance.py": {
@@ -162,9 +162,9 @@
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1794291073.8777072,
-    "seen": 1794291076.7878084,
-    "ast_hash": "ee15de88f927da153d6bdf136cef9cef",
+    "mtime": 1794555384.4784853,
+    "seen": 1794555394.0819397,
+    "ast_hash": "b500b3e653cbd658eb7cfef620c14be7",
     "semantic_hash": ""
   },
   "dev/README.md": {
@@ -249,6 +249,60 @@
     "mtime": 1794290638.8679438,
     "seen": 1794290950.1727657,
     "ast_hash": "93c6b1b5669bf63d6ec11feda1f6eb7d",
+    "semantic_hash": ""
+  },
+  "apply_4d.py": {
+    "mtime": 1794356014.6426847,
+    "seen": 1794356451.2564435,
+    "ast_hash": "1ca212e366bbf81065cdbe820a31ed16",
+    "semantic_hash": ""
+  },
+  "apply_4d_fix.py": {
+    "mtime": 1794356331.5042417,
+    "seen": 1794356451.256447,
+    "ast_hash": "0bae627da9d36fdbadc2eacb3d108da5",
+    "semantic_hash": ""
+  },
+  "test_phase4d.py": {
+    "mtime": 1794356324.599291,
+    "seen": 1794356451.2564845,
+    "ast_hash": "3fe937e4c6a2cdee5e2df0b740e0ea52",
+    "semantic_hash": ""
+  },
+  "thumbs.py": {
+    "mtime": 1794356316.8837113,
+    "seen": 1794356451.2564867,
+    "ast_hash": "529dc1ebd34c5d90a4ac9d98b3510bc6",
+    "semantic_hash": ""
+  },
+  "update_handoff_4c.py": {
+    "mtime": 1794291150.2921932,
+    "seen": 1794356451.2565281,
+    "ast_hash": "fb7855ae6c3edd5c10ee2e8bbf1f3be8",
+    "semantic_hash": ""
+  },
+  "apply_5.py": {
+    "mtime": 1794555134.3291132,
+    "seen": 1794555394.0817032,
+    "ast_hash": "b6a3d5957b4e9a566cf26d5a9c3b8d79",
+    "semantic_hash": ""
+  },
+  "test_phase5.py": {
+    "mtime": 1794555152.030079,
+    "seen": 1794555394.0817943,
+    "ast_hash": "15f889010f3ec5b1995361a0fc6d0d4f",
+    "semantic_hash": ""
+  },
+  "ui/web_dialog.py": {
+    "mtime": 1794555163.1540947,
+    "seen": 1794555394.0819,
+    "ast_hash": "63b5ec1cb3bc535ca9f7e98c495b8eee",
+    "semantic_hash": ""
+  },
+  "webserver.py": {
+    "mtime": 1794555127.679945,
+    "seen": 1794555394.0819175,
+    "ast_hash": "045b4a25406f51da2dd3bdddf2e05561",
     "semantic_hash": ""
   }
 }

@@ -11,6 +11,9 @@ from ui.main_window import MainWindow
 
 
 def main():
+    if "--selftest" in sys.argv:               # used by build.py to check the built program
+        import selftest
+        sys.exit(selftest.run())
     data_dir = storage.default_data_dir()
     data_dir.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(filename=str(data_dir / "app.log"), level=logging.INFO,

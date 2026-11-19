@@ -21,3 +21,6 @@ config.ini
 _for_chat/
 
 HANDOFF.md.bak
+release/
+*.bak*
+graphify-out/cache/

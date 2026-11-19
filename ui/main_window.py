@@ -10,6 +10,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 import db
+import winstartup
 from services import format_value
 from ui.activity_log import ActivityLog
 from ui.add_dialog import FILE_TYPES, DocumentDialog, open_with_default_app
@@ -46,6 +47,7 @@ class MainWindow:
         self._thumb_todo = []
         self._thumb_job = None
         self.show_thumbs = tk.BooleanVar(master=root, value=archive.get_setting("show_thumbnails", "1") == "1")
+        self.autostart_var = tk.BooleanVar(master=root, value=winstartup.is_enabled())
 
         root.title("Office Document Archive")
         root.geometry("1320x780")
@@ -95,6 +97,7 @@ class MainWindow:
         tools.add_command(label="Check archive...", command=self.check_archive)
         tools.add_command(label="Activity Log...", command=self.open_activity_log)
         tools.add_command(label="Browser view...", command=self.open_web_dialog)
+        tools.add_checkbutton(label="Start with Windows", variable=self.autostart_var, command=self.toggle_autostart)
         bar.add_cascade(label="Tools", menu=tools)
         view = tk.Menu(bar, tearoff=0)
         view.add_command(label="Refresh", accelerator="F5", command=self.refresh_all)
@@ -569,6 +572,16 @@ class MainWindow:
         dlg.run()
         if dlg.changed:
             self.status.set("Scan text indexed. Searches now look inside the scans.")
+
+    def toggle_autostart(self):
+        try:
+            if self.autostart_var.get():
+                winstartup.enable()
+            else:
+                winstartup.disable()
+        except winstartup.StartupError as e:
+            messagebox.showinfo("Start with Windows", str(e), parent=self.root)
+        self.autostart_var.set(winstartup.is_enabled())          # always show what is really set
 
     def open_web_dialog(self):
         WebDialog(self.root, self.archive).run()
